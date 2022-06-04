@@ -101,6 +101,7 @@ router.put('/upvote', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
+  //put routes is used for update statement
   Post.update(
     {
       title: req.body.title
@@ -144,5 +145,3 @@ router.delete('/:id', (req, res) => {
 });
 
 module.exports = router;
-
-
