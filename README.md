@@ -1,5 +1,5 @@
 # JustTechNews
-Week 13 Async work
+Week 13 and 14 Async work
 
 ---
 ## About
