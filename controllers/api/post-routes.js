@@ -7,35 +7,29 @@ const withAuth = require('../../utils/auth');
 router.get('/', (req, res) => {
   console.log('======================');
   Post.findAll({
-    attributes: [
-      'id',
-      'post_url',
-      'title',
-      'created_at',
-      [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
-    ],
+    attributes: ['id', 'post_url', 'title', 'created_at'],
     include: [
-      {
-        model: Comment,
-        attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
-        include: {
+       {
+          model: Comment,
+          attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+          include: {
+             model: User,
+             attributes: ['username']
+          }
+       },
+       {
           model: User,
           attributes: ['username']
-        }
-      },
-      {
-        model: User,
-        attributes: ['username']
-      }
+       }
     ]
-  })
+ })
     .then(dbPostData => res.json(dbPostData))
     .catch(err => {
-      console.log(err);
-      res.status(500).json(err);
+       console.log(err);
+       res.status(500).json(err);
     });
 });
-
+   
 router.get('/:id', (req, res) => {
   Post.findOne({
     where: {
@@ -76,6 +70,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
+// create a post
 router.post('/', withAuth, (req, res) => {
   // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
   Post.create({
@@ -90,16 +85,7 @@ router.post('/', withAuth, (req, res) => {
     });
 });
 
-router.put('/upvote', withAuth, (req, res) => {
-  // custom static method created in models/Post.js
-  Post.upvote({ ...req.body, user_id: req.session.user_id }, { Vote, Comment, User })
-    .then(updatedVoteData => res.json(updatedVoteData))
-    .catch(err => {
-      console.log(err);
-      res.status(500).json(err);
-    });
-});
-
+// update post
 router.put('/:id', withAuth, (req, res) => {
   Post.update(
     {
@@ -123,6 +109,8 @@ router.put('/:id', withAuth, (req, res) => {
       res.status(500).json(err);
     });
 });
+
+// delete a link
 
 router.delete('/:id', withAuth, (req, res) => {
   console.log('id', req.params.id);

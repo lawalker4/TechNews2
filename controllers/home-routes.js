@@ -2,16 +2,19 @@ const router = require('express').Router();
 const sequelize = require('../config/connection');
 const { Post, User, Comment, Vote } = require('../models');
 
+// go to the landing page
+router.get("/", (req, res) => {
+  res.render("landingpage");
+});
+
 // get all posts for homepage
 router.get('/', (req, res) => {
-  console.log('======================');
   Post.findAll({
     attributes: [
       'id',
       'post_url',
       'title',
       'created_at',
-      [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
     ],
     include: [
       {
@@ -53,7 +56,6 @@ router.get('/post/:id', (req, res) => {
       'post_url',
       'title',
       'created_at',
-      [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
     ],
     include: [
       {
@@ -75,9 +77,10 @@ router.get('/post/:id', (req, res) => {
         res.status(404).json({ message: 'No post found with this id' });
         return;
       }
-
+// serialize the data
       const post = dbPostData.get({ plain: true });
 
+      // pass data to template
       res.render('single-post', {
         post,
         loggedIn: req.session.loggedIn
@@ -89,9 +92,10 @@ router.get('/post/:id', (req, res) => {
     });
 });
 
+// go to login page
 router.get('/login', (req, res) => {
   if (req.session.loggedIn) {
-    res.redirect('/');
+    res.redirect('/homepage');
     return;
   }
 
